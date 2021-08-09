@@ -9,15 +9,18 @@ function getData(path)
 end
 
 function featureNormalize(X)
-    mu = map(mean, eachcol(X))
-    sigma = map(std, eachcol(X))
-    X_norm = (X .- transpose(mu)) / transpose(sigma)
+
+    mu = mapslices(mean, X, dims = 1)
+
+    XM = X .- mu
+    sigma = mapslices(std, XM, dims = 1)
+    X_norm = XM ./ sigma
 
     return (X_norm, mu, sigma)
 end
 
 function featureDeNormalize(X, mu, sigma)
-    return (X * sigma) .+ transpose(mu)
+    return (X .* sigma) .+ mu
 end
 
 
@@ -33,6 +36,7 @@ function gradientDescent(X, y, theta, alpha, iterations)
     m = length(y)
 
     J_history = []
+
 
     for i = 1:iterations
 
@@ -54,6 +58,7 @@ function ex1Multi()
     y = data[:, m+1]
     X = data[:, 1:m]
 
+
     plot(data[:, 1], y, seriestype = :scatter, label = "First")
     savefig("output\\ex2.multi.1.png")
     plot(data[:, 2], y, seriestype = :scatter, label = "Second")
@@ -62,27 +67,32 @@ function ex1Multi()
 
     X_norm, mu, sigma = featureNormalize(X)
 
-    print("\nGot norms: mu", mu, ", sigma: ", sigma, "X_norm:\n")
-    print(X_norm)
 
     XOne = [ones(size(X, 1)) X_norm]
 
-    theta = zeros(2)          # Initialize fitting parameters
+    theta = zeros(3)          # Initialize fitting parameters
     iterations = 1500
-    alpha = 0.03
+    alpha = 0.1
     theta, J_history = gradientDescent(XOne, y, theta, alpha, iterations)
 
-    print("\nAnswer, theta: ", theta)
 
 
     plot(J_history)
     savefig("output\\ex2.J_History.png")
 
     # XBack = featureDeNormalize(X, mu, sigma) * theta
-    XBack = X * theta
+    Test = [1 -2 -2; 1 0 0; 1 2 2]
+    TestY = Test * theta
+    TestUnNormalized = featureDeNormalize(Test[:, 2:3], mu, sigma)
+
+    print("\nFinal theta: ", theta, ", example: ", TestUnNormalized, "\n\n")
+
     plot(data[:, 1], y, seriestype = :scatter, label = "First")
-    plot!(data[:, 1], XBack[:, 1], seriesTypes = :line, label = "Gradient Descent")
+    plot!(TestUnNormalized[:, 1], TestY, seriesTypes = :line, label = "Gradient Descent")
     savefig("output\\ex2.multi.1.answer.png")
+    plot(data[:, 2], y, seriestype = :scatter, label = "Second")
+    plot!(TestUnNormalized[:, 2], TestY, seriesTypes = :line, label = "Gradient Descent")
+    savefig("output\\ex2.multi.2.answer.png")
 end
 
 ex1Multi()
