@@ -1,0 +1,4 @@
+name = "ml_coursera_julia"
+uuid = "dd8ddf5b-8598-4121-b52e-4808cb91cb67"
+authors = ["Tomer Peleg <tomer.peleg@gmail.com>"]
+version = "0.1.0"
