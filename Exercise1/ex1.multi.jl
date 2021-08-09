@@ -17,7 +17,7 @@ function featureNormalize(X)
 end
 
 function featureDeNormalize(X, mu, sigma)
-    return (X * transpose(sigma)) .+ mu
+    return (X * sigma) .+ transpose(mu)
 end
 
 
@@ -78,7 +78,8 @@ function ex1Multi()
     plot(J_history)
     savefig("output\\ex2.J_History.png")
 
-    XBack = featureDeNormalize(X, mu, sigma) * theta
+    # XBack = featureDeNormalize(X, mu, sigma) * theta
+    XBack = X * theta
     plot(data[:, 1], y, seriestype = :scatter, label = "First")
     plot!(data[:, 1], XBack[:, 1], seriesTypes = :line, label = "Gradient Descent")
     savefig("output\\ex2.multi.1.answer.png")
